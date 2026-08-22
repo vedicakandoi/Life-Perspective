@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life Perspective</title>
+  <!-- html2canvas for capturing share card -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #f0f6fc;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-gradient: linear-gradient(135deg, #7928ca, #ff0080);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.8rem;
+    }
+
+    .inputs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.2rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+    }
+
+    .results {
+      display: none;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .progress-section {
+      text-align: center;
+    }
+
+    .progress-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 24px;
+      background: var(--bg);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--accent-gradient);
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .grid-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 1.2rem;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 0.3rem;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .screen-time-callout {
+      background: rgba(255, 65, 108, 0.08);
+      border: 1px solid rgba(255, 65, 108, 0.3);
+      border-radius: 10px;
+      padding: 1.2rem;
+      text-align: center;
+      margin-bottom: 1.2rem;
+    }
+
+    .screen-time-callout h3 {
+      font-size: 1.3rem;
+      color: #ff416c;
+      margin-bottom: 0.4rem;
+    }
+
+    .screen-time-callout p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .action-btn:hover {
+      opacity: 0.9;
+    }
+
+    .action-btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: #238636;
+      color: #ffffff;
+    }
+
+    #social-card-wrapper {
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+    }
+
+    .social-card {
+      width: 600px;
+      height: 600px;
+      background: #0d1117;
+      color: #f0f6fc;
+      padding: 2.5rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 12px solid #161b22;
+      border-radius: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .social-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .social-card-brand {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #7928ca, #ff0080);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .social-card-tag {
+      font-size: 0.85rem;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    .social-main-stat {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      padding: 1.8rem;
+      text-align: center;
+    }
+
+    .social-percent {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: #7928ca;
+      background: linear-gradient(135deg, #7928ca, #ff0080);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    .social-subtitle {
+      font-size: 1.1rem;
+      color: #8b949e;
+    }
+
+    .social-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .social-box {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .social-box-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #f0f6fc;
+    }
+
+    .social-box-lbl {
+      font-size: 0.75rem;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.2rem;
+    }
+
+    .social-footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #8b949e;
+      border-top: 1px solid #30363d;
+      padding-top: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+      .inputs {
+        grid-template-columns: 1fr;
+      }
+      .button-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Life Perspective</h1>
+      <p>Your Life, Age & Screen Time in Numbers</p>
+    </header>
+
+    <div class="card inputs">
+      <div class="input-group">
+        <label for="dob">Date of Birth</label>
+        <input type="date" id="dob">
+      </div>
+      <div class="input-group">
+        <label for="lifespan">Expected Lifespan</label>
+        <input type="number" id="lifespan" placeholder="e.g. 80" min="1" max="120">
+      </div>
+      <div class="input-group">
+        <label for="screen-hours">Daily Screen Time (Hours)</label>
+        <input type="number" id="screen-hours" placeholder="e.g. 5" min="0" max="24" step="0.5">
+      </div>
+      <div class="input-group">
+        <label for="phone-age">Age When Got Phone</label>
+        <input type="number" id="phone-age" placeholder="e.g. 14" min="1" max="100">
+      </div>
+    </div>
+
+    <div id="results" class="results">
+      <!-- Section 1: Progress Bar -->
+      <div class="card progress-section">
+        <div class="progress-text" id="lived-percent-text">You've lived 0% of your expected life.</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </div>
+
+      <!-- Section 2: Screen Time Impact -->
+      <div class="card">
+        <div class="section-title">📱 Phone Screen Time Impact</div>
+        
+        <div class="screen-time-callout">
+          <h3 id="screen-years-lost">0 Years Lost</h3>
+          <p id="screen-waking-percent">At this rate, you'll spend 0% of your remaining waking life looking at your phone.</p>
+        </div>
+
+        <div class="grid-stats">
+          <div class="stat-box">
+            <div class="stat-label">Years Spent On Phone (So Far)</div>
+            <div class="stat-number" id="past-screen-years">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Days Spent On Phone (So Far)</div>
+            <div class="stat-number" id="past-screen-days">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Future Years On Phone</div>
+            <div class="stat-number" id="future-screen-years">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Waking Hours Spent Daily</div>
+            <div class="stat-number" id="waking-hours-daily">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Time Remaining -->
+      <div class="card">
+        <div class="section-title">⏳ Time Remaining</div>
+        <div class="grid-stats">
+          <div class="stat-box">
+            <div class="stat-label">Years Remaining</div>
+            <div class="stat-number" id="years-remaining">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Days Remaining</div>
+            <div class="stat-number" id="days-remaining">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Weekends Remaining</div>
+            <div class="stat-number" id="weekends-remaining">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Age in Everything -->
+      <div class="card">
+        <div class="section-title">🎂 Your Age in Everything</div>
+        <div class="grid-stats">
+          <div class="stat-box">
+            <div class="stat-label">Years Lived</div>
+            <div class="stat-number" id="years-lived">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Days Lived</div>
+            <div class="stat-number" id="days-lived">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Hours Lived</div>
+            <div class="stat-number" id="hours-lived">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Minutes Lived</div>
+            <div class="stat-number" id="minutes-lived">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Weeks Lived</div>
+            <div class="stat-number" id="weeks-lived">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Sundays Experienced</div>
+            <div class="stat-number" id="sundays-lived">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="action-btn" onclick="copyPerspective()">
+          <span>📋</span> Copy Text Summary
+        </button>
+        <button class="action-btn btn-secondary" onclick="downloadImageCard()">
+          <span>📸</span> Download Shareable Card
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Off-Screen Social Card Target for Canvas Export -->
+  <div id="social-card-wrapper">
+    <div id="social-card" class="social-card">
+      <div class="social-card-header">
+        <span class="social-card-brand">LIFE PERSPECTIVE</span>
+        <span class="social-card-tag">Life & Screen Check</span>
+      </div>
+
+      <div class="social-main-stat">
+        <div class="social-percent" id="sc-percent">0%</div>
+        <div class="social-subtitle" id="sc-subtitle">of life lived</div>
+      </div>
+
+      <div class="social-grid">
+        <div class="social-box">
+          <div class="social-box-val" id="sc-days-left">0</div>
+          <div class="social-box-lbl">Days Remaining</div>
+        </div>
+        <div class="social-box">
+          <div class="social-box-val" id="sc-weekends-left">0</div>
+          <div class="social-box-lbl">Weekends Left</div>
+        </div>
+        <div class="social-box">
+          <div class="social-box-val" id="sc-phone-years">0 Yrs</div>
+          <div class="social-box-lbl">Lost to Phone</div>
+        </div>
+        <div class="social-box">
+          <div class="social-box-val" id="sc-screen-percent">0%</div>
+          <div class="social-box-lbl">Waking Life on Screen</div>
+        </div>
+      </div>
+
+      <div class="social-footer">
+        Calculated via Life Perspective • Know Your Numbers
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const dobInput = document.getElementById('dob');
+    const lifespanInput = document.getElementById('lifespan');
+    const screenHoursInput = document.getElementById('screen-hours');
+    const phoneAgeInput = document.getElementById('phone-age');
+    const resultsDiv = document.getElementById('results');
+
+    function calculate() {
+      const dobVal = dobInput.value;
+      const lifespanVal = parseFloat(lifespanInput.value);
+      const hours = parseFloat(screenHoursInput.value);
+      const phoneAge = parseFloat(phoneAgeInput.value);
+
+      // Require all basic inputs to show findings
+      if (!dobVal || isNaN(lifespanVal) || lifespanVal <= 0) {
+        resultsDiv.style.display = 'none';
+        return;
+      }
+
+      const dob = new Date(dobVal);
+      const now = new Date();
+
+      if (dob >= now) {
+        resultsDiv.style.display = 'none';
+        return;
+      }
+
+      // Age Calculations
+      const diffMs = now - dob;
+      const daysLived = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const hoursLived = Math.floor(diffMs / (1000 * 60 * 60));
+      const minutesLived = Math.floor(diffMs / (1000 * 60));
+      const weeksLived = Math.floor(daysLived / 7);
+      const currentAge = daysLived / 365.25;
+
+      // Lifespan & Remaining Calculations
+      const totalExpectedDays = Math.floor(lifespanVal * 365.25);
+      const daysRemaining = Math.max(0, totalExpectedDays - daysLived);
+      const weekendsRemaining = Math.floor(daysRemaining / 7);
+      const yearsRemaining = Math.max(0, lifespanVal - currentAge);
+
+      // Percentage Lived
+      const percentLived = Math.min(100, ((daysLived / totalExpectedDays) * 100)).toFixed(1);
+
+      // --- Screen Time Calculations ---
+      const dailyScreenHours = isNaN(hours) ? 0 : hours;
+      const safePhoneAge = isNaN(phoneAge) ? 0 : phoneAge;
+      const dailyWakingHours = 16; // Standard 24h - 8h sleep
+      const percentWakingSpentOnPhone = ((dailyScreenHours / dailyWakingHours) * 100).toFixed(1);
+
+      // Years using phone so far
+      const yearsWithPhoneSoFar = Math.max(0, currentAge - safePhoneAge);
+      const daysWithPhoneSoFar = yearsWithPhoneSoFar * 365.25;
+      
+      const totalHoursOnPhoneSoFar = daysWithPhoneSoFar * dailyScreenHours;
+      const pastScreenYears = (totalHoursOnPhoneSoFar / (24 * 365.25)).toFixed(1);
+      const pastScreenDays = Math.floor(totalHoursOnPhoneSoFar / 24);
+
+      // Future screen time projections
+      const futureHoursOnPhone = yearsRemaining * 365.25 * dailyScreenHours;
+      const futureScreenYears = (futureHoursOnPhone / (24 * 365.25)).toFixed(1);
+
+      // Total lifetime spent on phone across whole life span
+      const totalLifetimePhoneYears = ((currentAge > safePhoneAge ? (lifespanVal - safePhoneAge) : lifespanVal) * 365.25 * dailyScreenHours / (24 * 365.25)).toFixed(1);
+
+      // DOM Updates - Screen Time
+      document.getElementById('screen-years-lost').innerText = `You'll spend ~${totalLifetimePhoneYears} years of your life on your phone.`;
+      document.getElementById('screen-waking-percent').innerText = `At this rate, you'll spend ${percentWakingSpentOnPhone}% of your remaining waking life on your screen.`;
+      document.getElementById('past-screen-years').innerText = pastScreenYears;
+      document.getElementById('past-screen-days').innerText = pastScreenDays.toLocaleString();
+      document.getElementById('future-screen-years').innerText = futureScreenYears;
+      document.getElementById('waking-hours-daily').innerText = `${percentWakingSpentOnPhone}%`;
+
+      // DOM Updates - Life & Time
+      document.getElementById('lived-percent-text').innerText = `You've lived ${percentLived}% of your expected life.`;
+      document.getElementById('progress-bar').style.width = `${percentLived}%`;
+
+      document.getElementById('years-remaining').innerText = yearsRemaining.toFixed(1);
+      document.getElementById('days-remaining').innerText = daysRemaining.toLocaleString();
+      document.getElementById('weekends-remaining').innerText = weekendsRemaining.toLocaleString();
+
+      document.getElementById('years-lived').innerText = currentAge.toFixed(1);
+      document.getElementById('days-lived').innerText = daysLived.toLocaleString();
+      document.getElementById('hours-lived').innerText = hoursLived.toLocaleString();
+      document.getElementById('minutes-lived').innerText = (minutesLived / 1000000).toFixed(1) + "M";
+      document.getElementById('weeks-lived').innerText = weeksLived.toLocaleString();
+      document.getElementById('sundays-lived').innerText = weeksLived.toLocaleString();
+
+      // Social Card Inputs Sync
+      document.getElementById('sc-percent').innerText = `${percentLived}%`;
+      document.getElementById('sc-subtitle').innerText = `You've lived ${percentLived}% of your life`;
+      document.getElementById('sc-days-left').innerText = daysRemaining.toLocaleString();
+      document.getElementById('sc-weekends-left').innerText = weekendsRemaining.toLocaleString();
+      document.getElementById('sc-phone-years').innerText = `${totalLifetimePhoneYears} Yrs`;
+      document.getElementById('sc-screen-percent').innerText = `${percentWakingSpentOnPhone}%`;
+
+      resultsDiv.style.display = 'flex';
+    }
+
+    function copyPerspective() {
+      const percent = document.getElementById('lived-percent-text').innerText;
+      const screenPercent = document.getElementById('screen-waking-percent').innerText;
+      const text = `Life Perspective:\n${percent}\n${screenPercent}\nCalculate yours: ${window.location.href}`;
+      
+      navigator.clipboard.writeText(text);
+      alert('Stats copied to clipboard!');
+    }
+
+    function downloadImageCard() {
+      const card = document.getElementById('social-card');
+      
+      html2canvas(card, {
+        scale: 2,
+        backgroundColor: '#0d1117'
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'life-perspective.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    // Event Listeners
+    [dobInput, lifespanInput, screenHoursInput, phoneAgeInput].forEach(element => {
+      element.addEventListener('input', calculate);
+    });
+  </script>
+</body>
+</html>
