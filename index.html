@@ -96,6 +96,9 @@
       font-size: 1rem;
       outline: none;
       transition: border-color 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
     }
 
     input:focus {
@@ -629,6 +632,7 @@
     // Event Listeners
     [dobInput, lifespanInput, screenHoursInput, phoneAgeInput].forEach(element => {
       element.addEventListener('input', calculate);
+      element.addEventListener('change', calculate);
     });
   </script>
 </body>
